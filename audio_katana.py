@@ -11,6 +11,8 @@ import random
 from glob import glob
 from tqdm import tqdm
 
+torchaudio.set_audio_backend("sox_io")
+
 
 def random_str():
     letters = string.ascii_lowercase
@@ -225,7 +227,15 @@ def run(current_folder, args):
                 # if the file does not exist, save it
                 if not os.path.exists(chunk_filename):
                     save_audio(chunk_filename, chunk_wav, 16000)
-    
+
+                # remove those chunks we don't need
+                if args.min_chunk_len and args.max_chunk_len:
+                    info = torchaudio.info(chunk_filename)
+                    duration = info.num_frames / info.sample_rate
+                    
+                    if duration < args.min_chunk_len or duration > args.max_chunk_len:
+                        os.remove(chunk_filename)
+
     print('Finished.')
 
 
@@ -270,6 +280,18 @@ def main():
         help="Path to a folder where to save chunks",
         type=str,
         required=True,
+    )
+    parser.add_argument(
+        "--min_chunk_len",
+        help="Minimal length of a chunk",
+        type=float,
+        required=False,
+    )
+    parser.add_argument(
+        "--max_chunk_len",
+        help="Maximal length of a chunk",
+        type=float,
+        required=False,
     )
     parser.add_argument(
         "--format",
