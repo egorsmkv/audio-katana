@@ -9,7 +9,7 @@ A tool to slice your audio files into chunks using Voice Activity Detection tech
 ## Install deps
 
 ```bash
-pip install torch torchaudio tqdm
+pip install librosa torch torchaudio tqdm
 ```
 
 ## Usage
