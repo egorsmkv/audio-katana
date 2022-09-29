@@ -37,3 +37,9 @@ Chunk audios and skip chunks out of limits: `--min_chunk_len`, `--max_chunk_len`
 ```bash
 python audio_katana.py --random_subfolder --source ./demo --format wav --destination ./demo-chunks --min_chunk_len 1.5 --max_chunk_len 5.5
 ```
+
+Chunk audios and skip chunks out of WADA SNR values: `--min_wada_snr`, `--max_wada_snr`:
+
+```bash
+python audio_katana.py --random_subfolder --source ./demo --format wav --destination ./demo-chunks --min_wada_snr 1.5 --max_wada_snr 5.5
+```
