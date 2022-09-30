@@ -259,7 +259,16 @@ def run(current_folder, args):
 
     if len(files) > 0:
         for filename in tqdm(files):
-            wav = read_audio(filename)
+            # resample to 16kHz
+            waveform, sample_rate = torchaudio.load(filename)
+
+            if sample_rate != 16_000:
+                upsample_resample = torchaudio.transforms.Resample(sample_rate, 16_000, resampling_method='sinc_interpolation')
+                speech_array = upsample_resample(waveform)
+                wav = speech_array.squeeze()
+            else:
+                wav = read_audio(filename)
+
             speech_timestamps = get_speech_timestamps(wav, model, sampling_rate=16000, window_size_samples=512)
 
             # set the chunk folder

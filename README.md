@@ -2,10 +2,6 @@
 
 A tool to slice your audio files into chunks using Voice Activity Detection technique
 
-## Requirements
-
-- Audio files must be in 16 kHz
-
 ## Install deps
 
 ```bash
