@@ -2,23 +2,20 @@ import os
 import argparse
 import torch
 import torchaudio
-from typing import List
-import torch.nn.functional as F
 import warnings
 import string
 import random
+from glob import glob
+
 import librosa
 import numpy as np
-
-from glob import glob
 from tqdm import tqdm
 
 torchaudio.set_audio_backend("sox_io")
 
 
 def random_str():
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for _ in range(10))
+    return ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
 
 
 def read_audio(path: str):
@@ -30,8 +27,8 @@ def read_audio(path: str):
     return wav.squeeze(0)
 
 
-def save_audio(path: str, tensor: torch.Tensor, sampling_rate: int = 16000):
-    torchaudio.save(path, tensor.unsqueeze(0), sampling_rate)
+def save_audio(path: str, tensor: torch.Tensor, bits_per_sample: int, encoding: str, sampling_rate: int = 16000):
+    torchaudio.save(path, tensor.unsqueeze(0), sampling_rate, encoding=encoding, bits_per_sample=bits_per_sample)
 
 
 def init_jit_model(model_path: str, device=torch.device('cpu')):
@@ -269,9 +266,10 @@ def run(current_folder, args):
 
     if len(files) > 0:
         for filename in tqdm(files):
-            # resample to 16kHz
+            # load the file
             waveform, sample_rate = torchaudio.load(filename)
 
+            # resample to 16kHz
             if sample_rate != 16_000:
                 upsample_resample = torchaudio.transforms.Resample(sample_rate, 16_000, resampling_method='sinc_interpolation')
                 speech_array = upsample_resample(waveform)
@@ -279,6 +277,7 @@ def run(current_folder, args):
             else:
                 wav = read_audio(filename)
 
+            # inference via the model
             speech_timestamps = get_speech_timestamps(wav, model, sampling_rate=16000, window_size_samples=512)
 
             # set the chunk folder
@@ -300,7 +299,7 @@ def run(current_folder, args):
 
                 # if the file does not exist, save it
                 if not os.path.exists(chunk_filename):
-                    save_audio(chunk_filename, chunk_wav, 16000)
+                    save_audio(chunk_filename, chunk_wav, args.bits_per_sample, args.encoding, 16000)
 
                 # filter out chunks by WADA SNR
                 if args.min_wada_snr and args.max_wada_snr:
@@ -314,7 +313,7 @@ def run(current_folder, args):
                 if args.min_chunk_len and args.max_chunk_len:
                     info = torchaudio.info(chunk_filename)
                     duration = info.num_frames / info.sample_rate
-                    
+
                     if duration < args.min_chunk_len or duration > args.max_chunk_len:
                         os.remove(chunk_filename)
 
@@ -397,6 +396,18 @@ def main():
         '--recursive', 
         help="Search audio files recursively",
         action='store_true',
+    )
+    parser.add_argument(
+        '--bits_per_sample', 
+        help="Bits per sample",
+        type=int,
+        default=16,
+    )
+    parser.add_argument(
+        '--encoding', 
+        help="Encoding for chunks",
+        type=str,
+        default="PCM_S",
     )
     parser.add_argument(
         '--random_subfolder', 
