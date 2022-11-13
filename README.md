@@ -1,6 +1,6 @@
 # audio-katana
 
-A tool to slice your audio files into chunks using Voice Activity Detection technique
+A tool to slice your audio files into chunks using the Voice Activity Detection technique
 
 ## Install the project
 
