@@ -2,6 +2,13 @@
 
 A tool to slice your audio files into chunks using Voice Activity Detection technique
 
+## Install the project
+
+```bash
+git clone https://github.com/egorsmkv/audio-katana
+cd audio-katana
+```
+
 ## Install deps
 
 ```bash
@@ -13,6 +20,8 @@ pip install librosa torch torchaudio tqdm
 Basic command:
 
 ```bash
+mkdir demo-chunks
+
 python audio_katana.py --source ./demo --format wav --destination ./demo-chunks
 ```
 
