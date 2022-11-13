@@ -47,34 +47,44 @@ def get_speech_timestamps(audio: torch.Tensor,
                           sampling_rate: int = 16000,
                           min_speech_duration_ms: int = 250,
                           min_silence_duration_ms: int = 100,
-                          window_size_samples: int = 1536,
+                          window_size_samples: int = 512,
                           speech_pad_ms: int = 30,
                           return_seconds: bool = False):
 
     """
     This method is used for splitting long audios into speech chunks using silero VAD
+
     Parameters
     ----------
     audio: torch.Tensor, one dimensional
         One dimensional float torch.Tensor, other types are casted to torch if possible
+
     model: preloaded .jit silero VAD model
+
     threshold: float (default - 0.5)
         Speech threshold. Silero VAD outputs speech probabilities for each audio chunk, probabilities ABOVE this value are considered as SPEECH.
         It is better to tune this parameter for each dataset separately, but "lazy" 0.5 is pretty good for most datasets.
+
     sampling_rate: int (default - 16000)
         Currently silero VAD models support 8000 and 16000 sample rates
+
     min_speech_duration_ms: int (default - 250 milliseconds)
         Final speech chunks shorter min_speech_duration_ms are thrown out
+
     min_silence_duration_ms: int (default - 100 milliseconds)
         In the end of each speech chunk wait for min_silence_duration_ms before separating it
+
     window_size_samples: int (default - 1536 samples)
         Audio chunks of window_size_samples size are fed to the silero VAD model.
         WARNING! Silero VAD models were trained using 512, 1024, 1536 samples for 16000 sample rate and 256, 512, 768 samples for 8000 sample rate.
         Values other than these may affect model perfomance!!
+
     speech_pad_ms: int (default - 30 milliseconds)
         Final speech chunks are padded by speech_pad_ms each side
+
     return_seconds: bool (default - False)
         whether return timestamps in seconds (default - samples)
+
     Returns
     ----------
     speeches: list of dicts
