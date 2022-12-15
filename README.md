@@ -9,6 +9,12 @@ git clone https://github.com/egorsmkv/audio-katana
 cd audio-katana
 ```
 
+## Install needed system packages
+
+```bash
+apt-get install libsndfile1-dev
+```
+
 ## Install deps
 
 ```bash
