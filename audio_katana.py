@@ -271,8 +271,8 @@ def run(current_folder, args):
 
             # resample to 16kHz
             if sample_rate != 16_000:
-                upsample_resample = torchaudio.transforms.Resample(sample_rate, 16_000, resampling_method='sinc_interpolation')
-                speech_array = upsample_resample(waveform)
+                resampler = torchaudio.transforms.Resample(sample_rate, 16_000, resampling_method='sinc_interpolation')
+                speech_array = resampler(waveform)
                 wav = speech_array.squeeze()
             else:
                 wav = read_audio(filename)
